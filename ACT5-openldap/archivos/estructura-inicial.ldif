@@ -1,0 +1,17 @@
+dn: ou=People,dc=planetafp,dc=local
+objectClass: top
+objectClass: organizationalUnit
+ou: People
+description: Unidad organizativa para usuarios del directorio
+
+dn: uid=dcardona,ou=People,dc=planetafp,dc=local
+objectClass: top
+objectClass: person
+objectClass: organizationalPerson
+objectClass: inetOrgPerson
+cn: Deivid Cardona
+sn: Cardona
+givenName: Deivid
+uid: dcardona
+mail: dcardona@planetafp.local
+userPassword: CAMBIAR_POR_CONTRASENA_SEGURA

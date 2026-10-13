@@ -1,0 +1,14 @@
+network:
+  version: 2
+  ethernets:
+    enp0s3:
+      dhcp4: false
+      addresses:
+        - 20.0.0.5/24
+      routes:
+        - to: default
+          via: PENDIENTE_PUERTA_DE_ENLACE
+      nameservers:
+        addresses:
+          - 1.1.1.1
+          - 8.8.8.8
