@@ -94,6 +94,8 @@ ip route
 
 **Evidencia prevista:** captura de `ip -4 addr show` e `ip route` donde aparezca `20.0.0.5/24`.
 
+![Evidencia 1: IP estática configurada con Netplan](evidencias/01-ip-estatica-netplan.png)
+
 ### Paso 2. Resolución de nombres local
 
 Edita `/etc/hosts` y añade esta línea:
@@ -278,7 +280,7 @@ ldapsearch -x -H ldap://localhost \
 
 | Nº | Evidencia | Estado |
 |---:|---|---|
-| 1 | IP estática configurada con Netplan | Pendiente de captura real |
+| 1 | [IP estática configurada con Netplan](evidencias/01-ip-estatica-netplan.png) | Completada |
 | 2 | Resolución local mediante `/etc/hosts` | Pendiente de captura real |
 | 3 | Instalación y reconfiguración de `slapd` | Pendiente de captura real |
 | 4 | Estado del servicio y esquemas LDAP | Pendiente de captura real |
