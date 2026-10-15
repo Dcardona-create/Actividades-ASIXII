@@ -287,4 +287,7 @@ ldapsearch -x -H ldap://localhost \
 | 5 | Inserción mediante `ldapadd` | Pendiente de captura real |
 | 6 | Consulta mediante `ldapsearch` | Pendiente de captura real |
 
-> La documentación está preparada antes de realizar la práctica. Los parámetros indicados como pendientes se deben confirmar en la máquina virtual y las evidencias deben reflejar resultados reales.
+
+
+
+
