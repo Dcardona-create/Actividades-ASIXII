@@ -77,7 +77,7 @@ ip route
 
 Captura disponible para documentar la identificación del servidor secundario. La dirección IP se mantendrá pendiente en el texto hasta contrastarla con la salida real del sistema.
 
-![Evidencia 1: Hostname del servidor DNS2](01-hostname-dns2.png)
+![Evidencia 1: Hostname del servidor DNS2](evidencias/01-hostname-dns2.png)
 
 Después se instala BIND9:
 
@@ -114,7 +114,7 @@ zone "6.168.192.in-addr.arpa" {
 
 Captura de la configuración de autorización de transferencias del servidor primario. Se conserva el número 3 para que coincida con el nombre del archivo existente.
 
-![Evidencia 3: Autorización de transferencia en el maestro](03-autorizacion-transferencia-maestro.png)
+![Evidencia 3: Autorización de transferencia en el maestro](evidencias/03-autorizacion-transferencia-maestro.png)
 
 En la zona directa se añadirá el segundo servidor de nombres:
 
@@ -169,7 +169,7 @@ zone "6.168.192.in-addr.arpa" {
 
 Captura de la configuración del servidor secundario. Se conserva el número 2 para que coincida con el nombre del archivo existente.
 
-![Evidencia 2: Configuración del servidor esclavo](02-configuracion-esclavo.png)
+![Evidencia 2: Configuración del servidor esclavo](evidencias/02-configuracion-esclavo.png)
 
 A continuación se valida la sintaxis y se inicia o recarga BIND9:
 
@@ -194,7 +194,7 @@ La transferencia será correcta si aparecen los archivos de zona y los logs no m
 
 Captura disponible de la comprobación de transferencia de zonas. La validación final mediante consultas DNS se documentará por separado en la Evidencia 5.
 
-![Evidencia 4: Transferencia de zonas](04-transferencia-zonas.png)
+![Evidencia 4: Transferencia de zonas](evidencias/04-transferencia-zonas.png)
 
 ## 5. Validación del servicio
 
@@ -259,14 +259,14 @@ La configuración de un servidor DNS secundario permite mantener la disponibilid
 
 ## Evidencias
 
-Las capturas existentes se integran en su apartado correspondiente sin mover, renombrar ni eliminar archivos. La numeración sigue los nombres de las imágenes, aunque el apartado del primario aparezca antes que el del secundario en la guía.
+Las capturas se guardan en la carpeta `evidencias/` y se muestran en su apartado correspondiente. La numeración sigue los nombres de las imágenes, aunque el apartado del primario aparezca antes que el del secundario en la guía.
 
 | Nº | Evidencia | Captura |
 |---:|---|---|
-| 1 | Hostname del servidor DNS2 | [Ver captura](01-hostname-dns2.png) |
-| 2 | Configuración del servidor esclavo | [Ver captura](02-configuracion-esclavo.png) |
-| 3 | Autorización de transferencia en el maestro | [Ver captura](03-autorizacion-transferencia-maestro.png) |
-| 4 | Transferencia de zonas | [Ver captura](04-transferencia-zonas.png) |
+| 1 | Hostname del servidor DNS2 | [Ver captura](evidencias/01-hostname-dns2.png) |
+| 2 | Configuración del servidor esclavo | [Ver captura](evidencias/02-configuracion-esclavo.png) |
+| 3 | Autorización de transferencia en el maestro | [Ver captura](evidencias/03-autorizacion-transferencia-maestro.png) |
+| 4 | Transferencia de zonas | [Ver captura](evidencias/04-transferencia-zonas.png) |
 | 5 | Consultas DNS contra primario y secundario | Pendiente de captura |
 
 ## Estructura del proyecto
@@ -274,11 +274,11 @@ Las capturas existentes se integran en su apartado correspondiente sin mover, re
 ```text
 ACT4-dns-esclavo/
 ├── README.md
-├── 01-hostname-dns2.png
-├── 02-configuracion-esclavo.png
-├── 03-autorizacion-transferencia-maestro.png
-├── 04-transferencia-zonas.png
-└── evidencias
+└── evidencias/
+    ├── 01-hostname-dns2.png
+    ├── 02-configuracion-esclavo.png
+    ├── 03-autorizacion-transferencia-maestro.png
+    └── 04-transferencia-zonas.png
 ```
 
-`evidencias` es actualmente un archivo vacío, no una carpeta. Se conserva sin cambios; las cuatro imágenes se enlazan desde su ubicación real en la raíz de `ACT4-dns-esclavo/`.
+Las nuevas capturas deben subirse a `ACT4-dns-esclavo/evidencias/`.
