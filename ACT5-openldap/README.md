@@ -280,15 +280,29 @@ dc=planetafp,dc=local
 
 ![Evidencia 5: Consulta general del directorio LDAP](evidencias/5.%20Consulta%20general%20del%20directorio%20LDAP.jpg)
 
-### Consulta específica del usuario
+### Evidencia 6 — Consulta específica del usuario dcardona
 
-La siguiente consulta ya se verificó mediante la salida compartida de la terminal:
+En la consola de Ubuntu se ejecutó:
 
 ```bash
-ldapsearch -x -LLL -H ldap://localhost -b 'dc=planetafp,dc=local' '(uid=dcardona)' dn cn sn givenName mail
+ldapsearch -x -H ldap://localhost -b 'dc=planetafp,dc=local' '(uid=dcardona)' dn cn sn givenName mail
 ```
 
-Permite seleccionar el usuario por su `uid` y mostrar su DN, nombre, apellidos y correo. A diferencia de la consulta general, devuelve únicamente la entrada de `dcardona`.
+Se realiza una consulta LDAP utilizando el filtro `(uid=dcardona)` sobre la base `dc=planetafp,dc=local`. El resultado muestra una única entrada con el DN, nombre completo, apellido, nombre de pila y correo electrónico del usuario. La búsqueda finaliza correctamente con `result: 0 Success` y `numEntries: 1`.
+
+La salida compartida confirma los siguientes datos:
+
+```text
+dn: uid=dcardona,ou=People,dc=planetafp,dc=local
+cn: Deivid Cardona
+sn: Cardona
+givenName: Deivid
+mail: dcardona@planetafp.local
+```
+
+El atributo solicitado es `givenName`, no `giveName`. Se conserva la salida extendida, sin `-LLL`, para mostrar también el resultado de la operación y el número de entradas.
+
+![Evidencia 6: Consulta específica del usuario dcardona](evidencias/06-consulta-usuario-dcardona.png)
 
 ### Comprobación de autenticación
 
@@ -306,7 +320,7 @@ dn:uid=dcardona,ou=People,dc=planetafp,dc=local
 
 Esto confirma la autenticación como `dcardona`; no debe confundirse con una consulta de atributos ni con un inicio de sesión del sistema operativo. La contraseña utilizada es la del usuario LDAP, no la del administrador LDAP ni la de acceso a Ubuntu.
 
-**Pendiente de captura:** consulta específica del usuario y autenticación con `ldapwhoami`. Ambas pruebas ya funcionaron según las salidas compartidas, pero todavía no tienen imagen enlazada en este documento.
+**Evidencia 7 pendiente de captura:** autenticación con `ldapwhoami`. La prueba ya funcionó según la salida compartida, pero todavía no tiene imagen enlazada en este documento.
 
 ---
 
@@ -331,5 +345,5 @@ Esto confirma la autenticación como `dcardona`; no debe confundirse con una con
 | 3 | Validación de la configuración y estado del servicio OpenLDAP | [Ver captura](evidencias/03-configuracion-slapd.png) |
 | 4 | Verificación del servicio, puerto LDAP y esquemas | [Ver captura](evidencias/04-servicio-puerto-esquemas.png) |
 | 5 | Consulta general del directorio LDAP | [Ver captura](evidencias/5.%20Consulta%20general%20del%20directorio%20LDAP.jpg) |
-| 6 | Consulta específica del usuario dcardona | Pendiente de captura |
+| 6 | Consulta específica del usuario dcardona | [Ver captura](evidencias/06-consulta-usuario-dcardona.png) |
 | 7 | Autenticación LDAP del usuario dcardona | Pendiente de captura |
