@@ -1,0 +1,60 @@
+name: Organizar evidencias ACT4
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/organizar-evidencias-act4.yml']
+permissions:
+  contents: write
+jobs:
+  organizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+      - name: Mover capturas y actualizar enlaces
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          root = Path('ACT4-dns-esclavo')
+          target = root / 'evidencias'
+          names = ['01-hostname-dns2.png', '02-configuracion-esclavo.png', '03-autorizacion-transferencia-maestro.png', '04-transferencia-zonas.png']
+          for name in names:
+              if not (root / name).is_file() and not (target / name).is_file():
+                  raise SystemExit('Falta la captura: ' + name)
+              if (root / name).is_file() and (target / name).exists():
+                  raise SystemExit('Destino ocupado: ' + name)
+          if target.is_file():
+              if target.read_bytes().strip():
+                  raise SystemExit('El archivo evidencias contiene datos; no se elimina')
+              subprocess.run(['git', 'rm', '--', str(target)], check=True)
+          target.mkdir(exist_ok=True)
+          for name in names:
+              source = root / name
+              if source.is_file():
+                  subprocess.run(['git', 'mv', '--', str(source), str(target / name)], check=True)
+          readme = root / 'README.md'
+          text = readme.read_text()
+          for name in names:
+              text = text.replace('](' + name + ')', '](evidencias/' + name + ')')
+          text = text.replace('Las capturas existentes se integran en su apartado correspondiente sin mover, renombrar ni eliminar archivos.', 'Las capturas se guardan en la carpeta `evidencias/` y se muestran en su apartado correspondiente.')
+          marker = '## Estructura del proyecto\n'
+          if marker not in text:
+              raise SystemExit('No se encuentra la seccion de estructura')
+          tree = 'ACT4-dns-esclavo/\n├── README.md\n└── evidencias/\n'
+          for i, name in enumerate(names):
+              tree += '    ' + ('└── ' if i == len(names) - 1 else '├── ') + name + '\n'
+          text = text.split(marker, 1)[0] + marker + '\n```text\n' + tree + '```\n\nLas nuevas capturas deben subirse a `ACT4-dns-esclavo/evidencias/`.\n'
+          readme.write_text(text)
+          PY
+          git add -- ACT4-dns-esclavo
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Organizar imagenes de ACT4 en evidencias y corregir enlaces'
+            git push origin HEAD:main
+          fi
