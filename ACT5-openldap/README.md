@@ -304,23 +304,26 @@ El atributo solicitado es `givenName`, no `giveName`. Se conserva la salida exte
 
 ![Evidencia 6: Consulta específica del usuario dcardona](evidencias/06-consulta-usuario-dcardona.png)
 
-### Comprobación de autenticación
+### Evidencia 7 — Autenticación LDAP del usuario dcardona
 
-También se comprobó la contraseña LDAP del usuario mediante:
+En la consola de Ubuntu se ejecutó el siguiente comando, utilizando `ou=people` en el DN de autenticación:
 
 ```bash
-ldapwhoami -x -H ldap://localhost -D 'uid=dcardona,ou=People,dc=planetafp,dc=local' -W
+ldapwhoami -x -H ldap://localhost -D 'uid=dcardona,ou=people,dc=planetafp,dc=local' -W
 ```
 
 La salida obtenida fue:
 
 ```text
+Enter LDAP Password:
 dn:uid=dcardona,ou=People,dc=planetafp,dc=local
 ```
 
-Esto confirma la autenticación como `dcardona`; no debe confundirse con una consulta de atributos ni con un inicio de sesión del sistema operativo. La contraseña utilizada es la del usuario LDAP, no la del administrador LDAP ni la de acceso a Ubuntu.
+Se verifica la autenticación del usuario `dcardona` mediante `ldapwhoami`, utilizando su DN y la contraseña solicitada de forma interactiva. El servidor devuelve `dn:uid=dcardona,ou=People,dc=planetafp,dc=local`, confirmando que la autenticación se ha realizado correctamente.
 
-**Evidencia 7 pendiente de captura:** autenticación con `ldapwhoami`. La prueba ya funcionó según la salida compartida, pero todavía no tiene imagen enlazada en este documento.
+Esta prueba no debe confundirse con una consulta de atributos ni con un inicio de sesión del sistema operativo. La contraseña utilizada es la del usuario LDAP, no la del administrador LDAP ni la de acceso a Ubuntu. La contraseña no se muestra en la salida.
+
+![Evidencia 7: Autenticación LDAP del usuario dcardona](evidencias/07-autenticacion-dcardona.png)
 
 ---
 
@@ -346,4 +349,4 @@ Esto confirma la autenticación como `dcardona`; no debe confundirse con una con
 | 4 | Verificación del servicio, puerto LDAP y esquemas | [Ver captura](evidencias/04-servicio-puerto-esquemas.png) |
 | 5 | Consulta general del directorio LDAP | [Ver captura](evidencias/5.%20Consulta%20general%20del%20directorio%20LDAP.jpg) |
 | 6 | Consulta específica del usuario dcardona | [Ver captura](evidencias/06-consulta-usuario-dcardona.png) |
-| 7 | Autenticación LDAP del usuario dcardona | Pendiente de captura |
+| 7 | Autenticación LDAP del usuario dcardona | [Ver captura](evidencias/07-autenticacion-dcardona.png) |
