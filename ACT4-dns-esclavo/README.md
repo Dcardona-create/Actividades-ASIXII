@@ -93,29 +93,33 @@ sudo systemctl status bind9
 
 ## 2. Configuración del servidor primario
 
-El primario debe autorizar a `192.168.6.101` para transferir las zonas. El siguiente bloque es la configuración de referencia, que debe contrastarse con el archivo real antes de realizar cambios.
+Se comprobó la configuración del primario mediante:
 
-Archivo `/etc/bind/named.conf.local` del primario:
+```bash
+sudo cat /etc/bind/named.conf.local
+```
+
+El archivo contiene las dos zonas como `type master` y autoriza las transferencias a `192.168.6.101`:
 
 ```conf
 zone "deivid.test" {
     type master;
     file "/etc/bind/zones/db.deivid.test";
     allow-transfer { 192.168.6.101; };
-    also-notify { 192.168.6.101; };
 };
 
 zone "6.168.192.in-addr.arpa" {
     type master;
     file "/etc/bind/zones/db.6.168.192";
     allow-transfer { 192.168.6.101; };
-    also-notify { 192.168.6.101; };
 };
 ```
 
 ### Autorización de transferencia en el maestro
 
-Pendiente de sustituir la captura `03-autorizacion-transferencia-maestro.png`: el archivo subido contiene HTML, no una imagen PNG. Se conserva el archivo sin mostrarlo como imagen para evitar una referencia visual rota. La captura correcta debe mostrar la configuración real de autorización de transferencias en el maestro.
+La configuración permite que el secundario `192.168.6.101` solicite las zonas directa e inversa. El archivo real no incluye `also-notify`; el bloque anterior reproduce la configuración compartida del maestro.
+
+![Autorización de transferencia en el maestro](evidencias/03-autorizacion-transferencia-maestro.png)
 
 En la zona directa, los registros previstos para los servidores son:
 
@@ -307,37 +311,19 @@ Después de modificar una zona en el primario:
 
 El secundario `192.168.6.101` responde de forma autoritativa a las consultas directa e inversa realizadas para `ns1.deivid.test`. Los SOA consultados coinciden con los del primario para las zonas directa e inversa, con serial `1`. Se corrigió una dirección de escucha incorrecta en DNS2 que impedía recibir consultas en la interfaz de laboratorio.
 
-Queda pendiente sustituir la captura del maestro que se subió en formato HTML. No se ha realizado todavía una prueba con el primario detenido.
+La configuración compartida del maestro autoriza al secundario a transferir ambas zonas. No se ha realizado todavía una prueba con el primario detenido.
 
 ## Capturas
 
-Todas las capturas se guardan en `evidencias/`. Los títulos describen su contenido sin el prefijo «Evidencia».
+Todas las capturas se guardan en `evidencias/`.
 
 | Nº | Descripción | Captura |
 |---:|---|---|
 | 1 | Hostname del servidor DNS2 | [Ver captura](evidencias/01-hostname-dns2.png) |
 | 2 | Configuración del servidor esclavo | [Ver captura](evidencias/02-configuracion-esclavo.png) |
-| 3 | Autorización de transferencia en el maestro | Pendiente de sustituir: el archivo contiene HTML |
+| 3 | Autorización de transferencia en el maestro | [Ver captura](evidencias/03-autorizacion-transferencia-maestro.png) |
 | 4 | Transferencia de zonas | [Ver captura](evidencias/04-transferencia-zonas.png) |
 | 5 | Consulta directa al esclavo | [Ver captura](evidencias/05-consulta-directa-esclavo.png) |
 | 6 | Consulta inversa al esclavo | [Ver captura](evidencias/06-consulta-inversa-esclavo.png) |
 | 7 | Comparación del SOA de la zona directa | [Ver captura](evidencias/07-comparacion-soa-directa.png) |
 | 8 | Comparación del SOA de la zona inversa | [Ver captura](evidencias/08-comparacion-soa-inversa.png) |
-
-## Estructura del proyecto
-
-```text
-ACT4-dns-esclavo/
-├── README.md
-└── evidencias/
-    ├── 01-hostname-dns2.png
-    ├── 02-configuracion-esclavo.png
-    ├── 03-autorizacion-transferencia-maestro.png
-    ├── 04-transferencia-zonas.png
-    ├── 05-consulta-directa-esclavo.png
-    ├── 06-consulta-inversa-esclavo.png
-    ├── 07-comparacion-soa-directa.png
-    └── 08-comparacion-soa-inversa.png
-```
-
-El archivo 03 se conserva sin cambios hasta disponer de una captura PNG real para sustituirlo. Esta actualización modifica únicamente el README; no borra ni altera las imágenes.
