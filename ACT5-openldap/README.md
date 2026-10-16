@@ -104,16 +104,19 @@ Edita `/etc/hosts` y añade esta línea:
 20.0.0.5   ldapserver.planetafp.local ldapserver
 ```
 
-Comprueba la resolución local:
+Comprueba el contenido del archivo y la resolución local:
 
 ```bash
+cat /etc/hosts
 getent hosts ldapserver
 getent hosts ldapserver.planetafp.local
 ```
 
 La entrada permite que el servidor se identifique mediante su FQDN sin depender de un DNS externo y evita errores de resolución durante las pruebas del servicio.
 
-**Evidencia prevista:** contenido de `/etc/hosts` y resultado de ambas consultas `getent`.
+**Evidencia 2 completada:** configuración de `/etc/hosts` y comprobación de la resolución local. La captura muestra la entrada del servidor y confirma que tanto el alias `ldapserver` como el nombre completo `ldapserver.planetafp.local` resuelven a `20.0.0.5`.
+
+![Evidencia 2: Configuración de /etc/hosts y comprobación de la resolución local](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg)
 
 ### Paso 3. Instalación de software
 
@@ -281,7 +284,7 @@ ldapsearch -x -H ldap://localhost \
 | Nº | Evidencia | Estado |
 |---:|---|---|
 | 1 | [IP estática configurada con Netplan](evidencias/01-ip-estatica-netplan.png) | Completada |
-| 2 | Resolución local mediante `/etc/hosts` | Pendiente de captura real |
+| 2 | [Configuración de /etc/hosts y resolución local](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) | Completada |
 | 3 | Instalación y reconfiguración de `slapd` | Pendiente de captura real |
 | 4 | Estado del servicio y esquemas LDAP | Pendiente de captura real |
 | 5 | Inserción mediante `ldapadd` | Pendiente de captura real |
