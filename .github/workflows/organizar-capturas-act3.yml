@@ -1,0 +1,69 @@
+name: Organizar capturas ACT3
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/organizar-capturas-act3.yml']
+permissions:
+  contents: write
+jobs:
+  organizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+      - name: Ordenar imagenes y titulos del README
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import re
+          import subprocess
+          root = Path('ACT3-instalacion-bind9')
+          target = root / 'evidencias'
+          titles = {
+              '01-verificacion-zonas-directa-inversa.png': 'Verificación de la resolución directa e inversa',
+              '02-resolucion-externa-y-estado-bind9.png': 'Resolución externa y estado del servicio BIND9',
+              '03-entorno-vm-y-red.png': 'Entorno de la máquina virtual y configuración de red',
+              '04-configuracion-bind9-y-zonas.png': 'Configuración de BIND9 y archivos de zona',
+          }
+          if target.exists() and not target.is_dir():
+              raise SystemExit('evidencias existe y no es una carpeta')
+          readme = root / 'README.md'
+          text = readme.read_text()
+          if '## Evidencias\n' not in text and '## Capturas\n' not in text:
+              raise SystemExit('No se encuentra la tabla final; revisar antes de cambiar')
+          for name in titles:
+              if not (root / name).is_file() and not (target / name).is_file():
+                  raise SystemExit('Falta la captura: ' + name)
+              if (root / name).is_file() and (target / name).exists():
+                  raise SystemExit('Destino ocupado: ' + name)
+          target.mkdir(exist_ok=True)
+          for name, title in titles.items():
+              source = root / name
+              if source.is_file():
+                  subprocess.run(['git', 'mv', '--', str(source), str(target / name)], check=True)
+              pattern = r'!\[[^\]\n]*\]\((?:evidencias/)?' + re.escape(name) + r'\)'
+              replacement = '### ' + title + '\n\n![' + title + '](evidencias/' + name + ')'
+              if '### ' + title + '\n' not in text:
+                  text = re.sub(pattern, lambda m, value=replacement: value, text)
+              else:
+                  text = text.replace('](' + name + ')', '](evidencias/' + name + ')')
+          text = re.sub(r'^\*\*Figura\s+\d+\.\*\*[^\n]*\n', '', text, flags=re.MULTILINE)
+          text = text.replace('- [Evidencias](#evidencias)', '- [Capturas](#capturas)')
+          marker = '## Evidencias\n' if '## Evidencias\n' in text else '## Capturas\n'
+          text = text.split(marker, 1)[0]
+          text += '## Capturas\n\nTodas las capturas se guardan en `evidencias/`.\n\n| Descripción | Captura |\n|---|---|\n'
+          for name, title in titles.items():
+              text += '| ' + title + ' | [Ver captura](evidencias/' + name + ') |\n'
+          readme.write_text(text)
+          PY
+          git add -- ACT3-instalacion-bind9
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Ordenar capturas de ACT3 y sustituir pies Figura por titulos'
+            git push origin HEAD:main
+          fi
