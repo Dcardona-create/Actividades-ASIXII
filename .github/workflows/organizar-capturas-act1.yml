@@ -1,0 +1,67 @@
+name: Organizar capturas ACT1
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/organizar-capturas-act1.yml']
+permissions:
+  contents: write
+jobs:
+  organizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+      - name: Ordenar fotos y añadir tabla de ACT1
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          root = Path('ACT1-dns-tunneling')
+          target = root / 'evidencias'
+          titles = {
+              'cliente_peticion.jpg': 'Petición enviada desde el cliente',
+              'server.peticion.jpg': 'Petición recibida en el servidor',
+              'wireshark.jpg': 'Análisis de la comunicación DNS con Wireshark',
+          }
+          if target.exists() and not target.is_dir():
+              raise SystemExit('evidencias existe y no es una carpeta')
+          readme = root / 'README.md'
+          text = readme.read_text()
+          for name, title in titles.items():
+              if not (root / name).is_file() and not (target / name).is_file():
+                  raise SystemExit('Falta la foto: ' + name)
+              if (root / name).is_file() and (target / name).exists():
+                  raise SystemExit('Destino ocupado: ' + name)
+              if '![' + title + '](' + name + ')' not in text and '![' + title + '](evidencias/' + name + ')' not in text:
+                  raise SystemExit('No se encuentra la imagen esperada en README: ' + name)
+          target.mkdir(exist_ok=True)
+          for name, title in titles.items():
+              source = root / name
+              if source.is_file():
+                  subprocess.run(['git', 'mv', '--', str(source), str(target / name)], check=True)
+              text = text.replace('](' + name + ')', '](evidencias/' + name + ')')
+              image = '![' + title + '](evidencias/' + name + ')'
+              if '### ' + title + '\n' not in text:
+                  text = text.replace(image, '### ' + title + '\n\n' + image)
+          entry = '8. [Capturas](#8-capturas)'
+          if entry not in text:
+              text = text.replace('7. [Conclusiones](#7-conclusiones)', '7. [Conclusiones](#7-conclusiones)\n' + entry)
+          marker = '## 8. Capturas\n'
+          if marker in text:
+              text = text.split(marker, 1)[0].rstrip()
+          text = text.rstrip() + '\n\n' + marker + '\nTodas las capturas se guardan en `evidencias/`.\n\n| Nº | Descripción | Captura |\n|---:|---|---|\n'
+          for i, (name, title) in enumerate(titles.items(), 1):
+              text += '| ' + str(i) + ' | ' + title + ' | [Ver captura](evidencias/' + name + ') |\n'
+          readme.write_text(text)
+          PY
+          git add -- ACT1-dns-tunneling
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Organizar fotos de ACT1 y añadir tabla final de capturas'
+            git push origin HEAD:main
+          fi
