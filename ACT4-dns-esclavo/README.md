@@ -61,7 +61,7 @@ El servidor primario ya configurado administra las zonas `deivid.test` y `6.168.
 | Zona directa | `deivid.test` |
 | Zona inversa | `6.168.192.in-addr.arpa` |
 
-> La IP real del servidor secundario se documentará después de crear y revisar la segunda máquina virtual.
+> La IP del secundario sigue pendiente de confirmar en esta documentación. Los marcadores `IP_DEL_SECUNDARIO` no deben ejecutarse literalmente ni sustituirse por una IP supuesta.
 
 ## 1. Preparación del servidor secundario
 
@@ -72,6 +72,12 @@ hostnamectl
 ip -4 addr show
 ip route
 ```
+
+### Evidencia 1 — Hostname del servidor DNS2
+
+Captura disponible para documentar la identificación del servidor secundario. La dirección IP se mantendrá pendiente en el texto hasta contrastarla con la salida real del sistema.
+
+![Evidencia 1: Hostname del servidor DNS2](01-hostname-dns2.png)
 
 Después se instala BIND9:
 
@@ -103,6 +109,12 @@ zone "6.168.192.in-addr.arpa" {
     also-notify { IP_DEL_SECUNDARIO; };
 };
 ```
+
+### Evidencia 3 — Autorización de transferencia en el maestro
+
+Captura de la configuración de autorización de transferencias del servidor primario. Se conserva el número 3 para que coincida con el nombre del archivo existente.
+
+![Evidencia 3: Autorización de transferencia en el maestro](03-autorizacion-transferencia-maestro.png)
 
 En la zona directa se añadirá el segundo servidor de nombres:
 
@@ -153,6 +165,12 @@ zone "6.168.192.in-addr.arpa" {
 };
 ```
 
+### Evidencia 2 — Configuración del servidor esclavo
+
+Captura de la configuración del servidor secundario. Se conserva el número 2 para que coincida con el nombre del archivo existente.
+
+![Evidencia 2: Configuración del servidor esclavo](02-configuracion-esclavo.png)
+
 A continuación se valida la sintaxis y se inicia o recarga BIND9:
 
 ```bash
@@ -171,6 +189,12 @@ sudo journalctl -u bind9 -n 50 --no-pager
 ```
 
 La transferencia será correcta si aparecen los archivos de zona y los logs no muestran errores de permisos, conectividad o autorización.
+
+### Evidencia 4 — Transferencia de zonas
+
+Captura disponible de la comprobación de transferencia de zonas. La validación final mediante consultas DNS se documentará por separado en la Evidencia 5.
+
+![Evidencia 4: Transferencia de zonas](04-transferencia-zonas.png)
 
 ## 5. Validación del servicio
 
@@ -194,6 +218,10 @@ También se puede comparar el SOA en ambos servidores:
 dig @192.168.6.100 deivid.test SOA
 dig @IP_DEL_SECUNDARIO deivid.test SOA
 ```
+
+### Evidencia 5 — Consultas DNS contra primario y secundario
+
+Pendiente de captura y documentación de los resultados. No se marca como completada únicamente por disponer de una captura de transferencia de zonas.
 
 ## Análisis de incidencias técnicas
 
@@ -231,17 +259,26 @@ La configuración de un servidor DNS secundario permite mantener la disponibilid
 
 ## Evidencias
 
-| Nº | Evidencia | Descripción |
+Las capturas existentes se integran en su apartado correspondiente sin mover, renombrar ni eliminar archivos. La numeración sigue los nombres de las imágenes, aunque el apartado del primario aparezca antes que el del secundario en la guía.
+
+| Nº | Evidencia | Captura |
 |---:|---|---|
-| 1 | Pendiente | Entorno e IP del servidor secundario |
-| 2 | Pendiente | Configuración de transferencia en el primario |
-| 3 | Pendiente | Declaración de zonas `slave` en el secundario |
-| 4 | Pendiente | Archivos de zona transferidos y logs |
-| 5 | Pendiente | Consultas DNS contra primario y secundario |
+| 1 | Hostname del servidor DNS2 | [Ver captura](01-hostname-dns2.png) |
+| 2 | Configuración del servidor esclavo | [Ver captura](02-configuracion-esclavo.png) |
+| 3 | Autorización de transferencia en el maestro | [Ver captura](03-autorizacion-transferencia-maestro.png) |
+| 4 | Transferencia de zonas | [Ver captura](04-transferencia-zonas.png) |
+| 5 | Consultas DNS contra primario y secundario | Pendiente de captura |
 
 ## Estructura del proyecto
 
 ```text
 ACT4-dns-esclavo/
-└── README.md
+├── README.md
+├── 01-hostname-dns2.png
+├── 02-configuracion-esclavo.png
+├── 03-autorizacion-transferencia-maestro.png
+├── 04-transferencia-zonas.png
+└── evidencias
 ```
+
+`evidencias` es actualmente un archivo vacío, no una carpeta. Se conserva sin cambios; las cuatro imágenes se enlazan desde su ubicación real en la raíz de `ACT4-dns-esclavo/`.
