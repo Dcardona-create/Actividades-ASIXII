@@ -10,6 +10,7 @@
 - [C. Verificación y comprobación](#c-verificación-y-comprobación)
 - [D. Población y operaciones básicas](#d-población-del-directorio-y-operaciones-básicas)
 - [E. Control de errores](#e-control-de-errores-y-troubleshooting)
+- [Evidencias](#evidencias)
 
 ---
 
@@ -217,7 +218,7 @@ La opción `-W` pide la contraseña de forma interactiva; no la muestra ni la gu
 
 ### Archivo LDIF de prueba
 
-Crea `archivos/estructura-inicial.ldif` con una unidad organizativa y un usuario de prueba:
+La estructura inicial contiene una unidad organizativa y un usuario:
 
 ```ldif
 dn: ou=People,dc=planetafp,dc=local
@@ -236,48 +237,76 @@ sn: Cardona
 givenName: Deivid
 uid: dcardona
 mail: dcardona@planetafp.local
-userPassword: CAMBIAR_POR_CONTRASENA_SEGURA
+userPassword: HASH_GENERADO_LOCALMENTE
 ```
 
-No guardes una contraseña real en Git. Para crear un hash seguro, ejecuta:
+> Este bloque es una plantilla: sustituye `HASH_GENERADO_LOCALMENTE` por el hash generado con `slappasswd` únicamente en la copia local. No publiques contraseñas ni hashes reales en GitHub.
 
-```bash
-slappasswd
-```
-
-Copia el valor generado —normalmente empieza por `{SSHA}`— en `userPassword` dentro de una copia local del LDIF.
+En el servidor se creó `~/estructura-inicial.ldif` con permisos restringidos mediante `umask 077`. Se generó el hash con `LDAP_HASH=$(slappasswd)` y se incorporó al archivo local. Después se eliminó la variable con `unset LDAP_HASH`. El archivo del servidor no debe confundirse con la plantilla guardada en `archivos/` del repositorio.
 
 ### Inserción con ldapadd
 
-Carga las entradas usando autenticación simple, bind autenticado y un archivo LDIF:
+Desde el directorio personal del servidor se ejecutó:
 
 ```bash
-ldapadd -x -H ldap://localhost \
-  -D 'cn=admin,dc=planetafp,dc=local' -W \
-  -f archivos/estructura-inicial.ldif
+ldapadd -x -H ldap://localhost -D 'cn=admin,dc=planetafp,dc=local' -W -f estructura-inicial.ldif
 ```
 
-### Consulta con ldapsearch
+La salida compartida confirmó las dos altas:
 
-Busca el usuario indicando la base, el ámbito y un filtro concreto:
+```text
+adding new entry "ou=People,dc=planetafp,dc=local"
+
+adding new entry "uid=dcardona,ou=People,dc=planetafp,dc=local"
+```
+
+No es necesario repetir este comando si las entradas ya existen. Esta salida documenta la inserción; la captura de la Evidencia 5 corresponde a la consulta posterior, no al alta.
+
+### Evidencia 5 — Consulta general del directorio LDAP
+
+En la consola de Ubuntu se ejecutó:
 
 ```bash
-ldapsearch -x -H ldap://localhost \
-  -D 'cn=admin,dc=planetafp,dc=local' -W \
-  -b 'ou=People,dc=planetafp,dc=local' -s sub \
-  '(uid=dcardona)' cn sn mail uid
+ldapsearch -x -H ldap://localhost -b 'dc=planetafp,dc=local' '(objectClass=*)'
 ```
 
-Para listar todas las entradas situadas bajo `ou=People`, usa:
+La consulta muestra las tres entradas del directorio: la raíz del dominio, la unidad organizativa `People` y el usuario `dcardona`. La operación finaliza correctamente con `result: 0 Success` y `numEntries: 3`.
+
+```text
+dc=planetafp,dc=local
+└── ou=People
+    └── uid=dcardona
+```
+
+![Evidencia 5: Consulta general del directorio LDAP](evidencias/5.%20Consulta%20general%20del%20directorio%20LDAP.jpg)
+
+### Consulta específica del usuario
+
+La siguiente consulta ya se verificó mediante la salida compartida de la terminal:
 
 ```bash
-ldapsearch -x -H ldap://localhost \
-  -D 'cn=admin,dc=planetafp,dc=local' -W \
-  -b 'ou=People,dc=planetafp,dc=local' -s sub \
-  '(objectClass=*)'
+ldapsearch -x -LLL -H ldap://localhost -b 'dc=planetafp,dc=local' '(uid=dcardona)' dn cn sn givenName mail
 ```
 
-**Evidencia prevista:** resultado correcto de `ldapadd` y salida de `ldapsearch` con el DN y los atributos del usuario `dcardona`.
+Permite seleccionar el usuario por su `uid` y mostrar su DN, nombre, apellidos y correo. A diferencia de la consulta general, devuelve únicamente la entrada de `dcardona`.
+
+### Comprobación de autenticación
+
+También se comprobó la contraseña LDAP del usuario mediante:
+
+```bash
+ldapwhoami -x -H ldap://localhost -D 'uid=dcardona,ou=People,dc=planetafp,dc=local' -W
+```
+
+La salida obtenida fue:
+
+```text
+dn:uid=dcardona,ou=People,dc=planetafp,dc=local
+```
+
+Esto confirma la autenticación como `dcardona`; no debe confundirse con una consulta de atributos ni con un inicio de sesión del sistema operativo. La contraseña utilizada es la del usuario LDAP, no la del administrador LDAP ni la de acceso a Ubuntu.
+
+**Pendiente de captura:** consulta específica del usuario y autenticación con `ldapwhoami`. Ambas pruebas ya funcionaron según las salidas compartidas, pero todavía no tienen imagen enlazada en este documento.
 
 ---
 
@@ -286,7 +315,7 @@ ldapsearch -x -H ldap://localhost \
 | Problema | Causa habitual | Diagnóstico | Solución |
 |---|---|---|---|
 | `ldap_add: Invalid syntax (21)` | Atributo obligatorio ausente, DN incorrecto o LDIF mal formado | Revisar la entrada indicada por el error | Corregir el DN, los `objectClass`, los atributos obligatorios y comprobar que las entradas están separadas por una línea en blanco |
-| `ldap_bind: Invalid credentials (49)` | Contraseña o DN de administrador incorrectos | Revisar el DN y probar el bind con `-W` | Confirmar el uso de `cn=admin,dc=planetafp,dc=local`; si es necesario, ejecutar `sudo dpkg-reconfigure slapd` para definir otra contraseña |
+| `ldap_bind: Invalid credentials (49)` | Contraseña o DN de autenticación incorrectos | Revisar el DN y probar el bind con `-W` | Usar la contraseña correspondiente al DN indicado; no confundir administrador LDAP, usuario LDAP y usuario de Ubuntu. Si persiste, comprobar el DN configurado antes de restablecer credenciales |
 | No se resuelve `ldapserver` | Entrada ausente o errónea en `/etc/hosts` | Ejecutar `getent hosts ldapserver` | Corregir o añadir `20.0.0.5 ldapserver.planetafp.local ldapserver` |
 | `ldap_connect: Can't contact LDAP server (-1)` | Servicio detenido, URI incorrecta o puerto sin escucha | Ejecutar `systemctl status slapd` y `ss -lntp \| grep ':389'` | Reiniciar `slapd`, revisar que escucha en TCP 389 y utilizar `ldap://localhost` o el FQDN correcto |
 | `ldap_add: Already exists (68)` | La entrada ya fue cargada | Buscar el DN con `ldapsearch` | No repetir el alta; modificar la entrada con `ldapmodify` o eliminarla de forma controlada antes de recrearla |
@@ -301,10 +330,6 @@ ldapsearch -x -H ldap://localhost \
 | 2 | Configuración de /etc/hosts y resolución local | [Ver captura](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) |
 | 3 | Validación de la configuración y estado del servicio OpenLDAP | [Ver captura](evidencias/03-configuracion-slapd.png) |
 | 4 | Verificación del servicio, puerto LDAP y esquemas | [Ver captura](evidencias/04-servicio-puerto-esquemas.png) |
-| 5 | Inserción mediante `ldapadd` | |
-| 6 | Consulta mediante `ldapsearch` | |
-
-
-
-
-
+| 5 | Consulta general del directorio LDAP | [Ver captura](evidencias/5.%20Consulta%20general%20del%20directorio%20LDAP.jpg) |
+| 6 | Consulta específica del usuario dcardona | Pendiente de captura |
+| 7 | Autenticación LDAP del usuario dcardona | Pendiente de captura |
