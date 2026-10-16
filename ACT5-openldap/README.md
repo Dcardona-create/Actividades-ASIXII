@@ -195,6 +195,12 @@ sudo ldapsearch -Y EXTERNAL -H ldapi:/// \
 
 La salida debe mostrar entradas bajo `cn=schema,cn=config`, normalmente con esquemas como `core`, `cosine`, `nis` e `inetorgperson`.
 
+### Evidencia 4 — Servicio, puerto y esquemas LDAP
+
+En las comprobaciones realizadas, `slapd` devuelve `enabled` y `active`, el puerto TCP `389` aparece en estado `LISTEN` para IPv4 e IPv6 y la consulta de esquemas devuelve `core`, `cosine`, `nis` e `inetorgperson` bajo `cn=schema,cn=config`.
+
+![Evidencia 4: Verificación del servicio, puerto LDAP y esquemas](evidencias/04-servicio-puerto-esquemas.png)
+
 Comprueba la entrada base del DIT con autenticación simple:
 
 ```bash
@@ -294,7 +300,7 @@ ldapsearch -x -H ldap://localhost \
 | 1 | IP estática configurada con Netplan | [Ver captura](evidencias/01-ip-estatica-netplan.png) |
 | 2 | Configuración de /etc/hosts y resolución local | [Ver captura](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) |
 | 3 | Validación de la configuración y estado del servicio OpenLDAP | [Ver captura](evidencias/03-configuracion-slapd.png) |
-| 4 | Estado del servicio y esquemas LDAP | |
+| 4 | Verificación del servicio, puerto LDAP y esquemas | [Ver captura](evidencias/04-servicio-puerto-esquemas.png) |
 | 5 | Inserción mediante `ldapadd` | |
 | 6 | Consulta mediante `ldapsearch` | |
 
