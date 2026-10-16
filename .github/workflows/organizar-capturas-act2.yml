@@ -1,0 +1,74 @@
+name: Organizar capturas ACT2
+on:
+  push:
+    branches: [main]
+    paths: ['.github/workflows/organizar-capturas-act2.yml']
+permissions:
+  contents: write
+jobs:
+  organizar:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683
+        with:
+          ref: main
+      - name: Mover capturas y corregir enlaces de ACT2
+        shell: bash
+        run: |
+          set -euo pipefail
+          python3 - <<'PY'
+          from pathlib import Path
+          import subprocess
+          root = Path('ACT2-dns-resolucion')
+          target = root / 'evidencias'
+          names = [
+              '01-benchmark-nameservers.jpg',
+              '02-whois-ifp-es.jpg',
+              '03-iana-es.png',
+              '04-iana-cat.jpg',
+              '05-iana-edu.jpg',
+              '06-cambio-dns-linux.jpg',
+              '07-cache-dns-nscd.jpg',
+              '08-vaciado-cache-dns.jpg',
+              '09-dig-a-aliexpress.jpg',
+              '10-dig-short-mx-ns-aliexpress.jpg',
+              '11-dig-ttl-aliexpress.jpg',
+              '12-dig-trace-aliexpress.jpg',
+              '13-wireshark-query-response-mx.png',
+              '14-wireshark-udp-ports.png',
+              '15-wireshark-transaction-id-flags.png',
+              '16-wireshark-mx-answers.png',
+          ]
+          if target.exists() and not target.is_dir():
+              raise SystemExit('evidencias existe y no es una carpeta')
+          readme = root / 'README.md'
+          text = readme.read_text()
+          for name in names:
+              if not (root / name).is_file() and not (target / name).is_file():
+                  raise SystemExit('Falta la captura: ' + name)
+              if (root / name).is_file() and (target / name).exists():
+                  raise SystemExit('Destino ocupado: ' + name)
+              if '](' + name + ')' not in text and '](evidencias/' + name + ')' not in text:
+                  raise SystemExit('Falta el enlace de la captura: ' + name)
+          target.mkdir(exist_ok=True)
+          for name in names:
+              source = root / name
+              if source.is_file():
+                  subprocess.run(['git', 'mv', '--', str(source), str(target / name)], check=True)
+              text = text.replace('](' + name + ')', '](evidencias/' + name + ')')
+          readme.write_text(text)
+          old = root / 'capturas'
+          if old.is_dir():
+              entries = list(old.iterdir())
+              if len(entries) == 1 and entries[0].name == '.gitkeep' and entries[0].is_file():
+                  if not entries[0].read_bytes().strip():
+                      subprocess.run(['git', 'rm', '--', str(entries[0])], check=True)
+          PY
+          git add -- ACT2-dns-resolucion
+          if ! git diff --cached --quiet; then
+            git config user.name 'github-actions[bot]'
+            git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+            git commit -m 'Mover imagenes de ACT2 a evidencias y actualizar enlaces'
+            git push origin HEAD:main
+          fi
