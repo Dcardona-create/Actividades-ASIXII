@@ -14,7 +14,7 @@
 - [Análisis de incidencias técnicas](#análisis-de-incidencias-técnicas)
 - [Operación y mantenimiento](#operación-y-mantenimiento)
 - [Conclusiones](#conclusiones)
-- [Evidencias](#evidencias)
+- [Capturas](#capturas)
 
 ---
 
@@ -98,9 +98,10 @@ Antes de configurar el servicio se revisa la máquina virtual y su conectividad 
 | IP del servidor DNS | `192.168.6.100/24` |
 | Red local del laboratorio | `192.168.6.0/24` |
 
-![Entorno de máquina virtual y configuración de red](03-entorno-vm-y-red.png)
+### Entorno de la máquina virtual y configuración de red
 
-**Figura 1.** Entorno de la máquina virtual y parámetros de red empleados durante la práctica.
+![Entorno de la máquina virtual y configuración de red](evidencias/03-entorno-vm-y-red.png)
+
 
 ### Pasos
 
@@ -121,9 +122,10 @@ sudo systemctl enable --now bind9
 sudo systemctl status bind9
 ```
 
-![Resolución externa y estado del servicio BIND9](02-resolucion-externa-y-estado-bind9.png)
+### Resolución externa y estado del servicio BIND9
 
-**Figura 2.** Comprobación de resolución externa y verificación de que el servicio `bind9` está activo.
+![Resolución externa y estado del servicio BIND9](evidencias/02-resolucion-externa-y-estado-bind9.png)
+
 
 ### Validación esperada
 
@@ -149,9 +151,10 @@ zone "6.168.192.in-addr.arpa" {
 };
 ```
 
-![Configuración de BIND9 y archivos de zona](04-configuracion-bind9-y-zonas.png)
+### Configuración de BIND9 y archivos de zona
 
-**Figura 3.** Declaración de las zonas en BIND9 y edición de los archivos de zona directa e inversa.
+![Configuración de BIND9 y archivos de zona](evidencias/04-configuracion-bind9-y-zonas.png)
+
 
 ### Zona directa
 
@@ -230,9 +233,10 @@ La consulta devuelve el estado `NOERROR`, una respuesta autoritativa mediante el
 100.6.168.192.in-addr.arpa. 86400 IN PTR ns1.deivid.test.
 ```
 
-![Verificación de zonas directa e inversa](01-verificacion-zonas-directa-inversa.png)
+### Verificación de la resolución directa e inversa
 
-**Figura 4.** Resultado de las comprobaciones de resolución directa e inversa de las zonas configuradas.
+![Verificación de la resolución directa e inversa](evidencias/01-verificacion-zonas-directa-inversa.png)
+
 
 ### Criterios de éxito
 
@@ -306,24 +310,13 @@ También se ha comprobado la importancia de validar la configuración con `named
 
 ---
 
-## Evidencias
+## Capturas
 
-| Nº | Evidencia | Descripción |
-|---:|---|---|
-| 1 | `01-verificacion-zonas-directa-inversa.png` | Pruebas de resolución directa e inversa. |
-| 2 | `02-resolucion-externa-y-estado-bind9.png` | Estado del servicio BIND9 y resolución externa. |
-| 3 | `03-entorno-vm-y-red.png` | Máquina virtual y configuración de red. |
-| 4 | `04-configuracion-bind9-y-zonas.png` | Archivos de configuración y zonas DNS. |
+Todas las capturas se guardan en `evidencias/`.
 
----
-
-## Estructura del proyecto
-
-```text
-ACT3-instalacion-bind9/
-├── 01-verificacion-zonas-directa-inversa.png
-├── 02-resolucion-externa-y-estado-bind9.png
-├── 03-entorno-vm-y-red.png
-├── 04-configuracion-bind9-y-zonas.png
-└── README.md
-```
+| Descripción | Captura |
+|---|---|
+| Verificación de la resolución directa e inversa | [Ver captura](evidencias/01-verificacion-zonas-directa-inversa.png) |
+| Resolución externa y estado del servicio BIND9 | [Ver captura](evidencias/02-resolucion-externa-y-estado-bind9.png) |
+| Entorno de la máquina virtual y configuración de red | [Ver captura](evidencias/03-entorno-vm-y-red.png) |
+| Configuración de BIND9 y archivos de zona | [Ver captura](evidencias/04-configuracion-bind9-y-zonas.png) |
