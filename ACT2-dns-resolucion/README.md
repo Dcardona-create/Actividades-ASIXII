@@ -21,6 +21,7 @@
    - [ID de transacción y flags](#63-id-de-transacción-y-flags)
    - [Registros MX en la respuesta](#64-registros-mx-en-la-respuesta)
 7. [Conclusiones](#7-conclusiones)
+8. [Capturas](#8-capturas)
 
 ## 1. Introducción y objetivos
 
@@ -150,3 +151,26 @@ La sección de respuestas contiene los registros MX devueltos para el dominio co
 ## 7. Conclusiones
 
 La actividad permite comprobar cómo se resuelven los nombres de dominio mediante DNS, desde la consulta de registros y el uso de caché local hasta el análisis de los paquetes intercambiados entre cliente y servidor. El uso de `dig` y Wireshark facilita la interpretación tanto de las respuestas DNS como de los campos que intervienen en el protocolo.
+
+## 8. Capturas
+
+Todas las capturas se guardan en `evidencias/`.
+
+| Nº | Descripción | Captura |
+|---:|---|---|
+| 1 | Comparativa de servidores DNS | [Ver captura](evidencias/01-benchmark-nameservers.jpg) |
+| 2 | Consulta WHOIS del dominio ifp.es | [Ver captura](evidencias/02-whois-ifp-es.jpg) |
+| 3 | Información de IANA sobre .es | [Ver captura](evidencias/03-iana-es.png) |
+| 4 | Información de IANA sobre .cat | [Ver captura](evidencias/04-iana-cat.jpg) |
+| 5 | Información de IANA sobre .edu | [Ver captura](evidencias/05-iana-edu.jpg) |
+| 6 | Cambio del servidor DNS en Linux | [Ver captura](evidencias/06-cambio-dns-linux.jpg) |
+| 7 | Estado de la caché DNS con NSCD | [Ver captura](evidencias/07-cache-dns-nscd.jpg) |
+| 8 | Vaciado de la caché DNS | [Ver captura](evidencias/08-vaciado-cache-dns.jpg) |
+| 9 | Consulta del registro A de aliexpress.com | [Ver captura](evidencias/09-dig-a-aliexpress.jpg) |
+| 10 | Consulta de registros MX y NS de aliexpress.com | [Ver captura](evidencias/10-dig-short-mx-ns-aliexpress.jpg) |
+| 11 | Consulta del TTL de aliexpress.com | [Ver captura](evidencias/11-dig-ttl-aliexpress.jpg) |
+| 12 | Trazado de resolución DNS de aliexpress.com | [Ver captura](evidencias/12-dig-trace-aliexpress.jpg) |
+| 13 | Consulta y respuesta MX en Wireshark | [Ver captura](evidencias/13-wireshark-query-response-mx.png) |
+| 14 | Puertos UDP en Wireshark | [Ver captura](evidencias/14-wireshark-udp-ports.png) |
+| 15 | ID de transacción y flags DNS en Wireshark | [Ver captura](evidencias/15-wireshark-transaction-id-flags.png) |
+| 16 | Registros MX de la respuesta en Wireshark | [Ver captura](evidencias/16-wireshark-mx-answers.png) |
