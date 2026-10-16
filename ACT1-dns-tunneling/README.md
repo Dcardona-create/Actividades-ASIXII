@@ -9,6 +9,7 @@
 5. [Ejecución de la petición DNS](#5-ejecución-de-la-petición-dns)
 6. [Análisis de la comunicación con Wireshark](#6-análisis-de-la-comunicación-con-wireshark)
 7. [Conclusiones](#7-conclusiones)
+8. [Capturas](#8-capturas)
 
 ## 1. Introducción y objetivos
 
@@ -56,18 +57,34 @@ python3 dns_server_1_peticion.py
 
 Para realizar la prueba, primero se ejecuta el servidor y, a continuación, el cliente. La siguiente captura muestra el envío de la petición desde el cliente.
 
-![Petición enviada desde el cliente](cliente_peticion.jpg)
+### Petición enviada desde el cliente
+
+![Petición enviada desde el cliente](evidencias/cliente_peticion.jpg)
 
 El servidor recibe y procesa la petición DNS enviada por el cliente.
 
-![Petición recibida en el servidor](server.peticion.jpg)
+### Petición recibida en el servidor
+
+![Petición recibida en el servidor](evidencias/server.peticion.jpg)
 
 ## 6. Análisis de la comunicación con Wireshark
 
 Wireshark permite verificar que la comunicación se ha realizado mediante paquetes DNS. En la captura se puede observar el tráfico generado durante la petición entre el cliente y el servidor.
 
-![Análisis de la comunicación DNS con Wireshark](wireshark.jpg)
+### Análisis de la comunicación DNS con Wireshark
+
+![Análisis de la comunicación DNS con Wireshark](evidencias/wireshark.jpg)
 
 ## 7. Conclusiones
 
 La actividad permite comprobar el funcionamiento básico de una comunicación mediante DNS Tunneling. La implementación cliente-servidor demuestra cómo se puede enviar información dentro de una petición DNS y cómo el servidor puede recibirla y procesarla. El análisis con Wireshark confirma el intercambio de tráfico DNS durante la prueba.
+
+## 8. Capturas
+
+Todas las capturas se guardan en `evidencias/`.
+
+| Nº | Descripción | Captura |
+|---:|---|---|
+| 1 | Petición enviada desde el cliente | [Ver captura](evidencias/cliente_peticion.jpg) |
+| 2 | Petición recibida en el servidor | [Ver captura](evidencias/server.peticion.jpg) |
+| 3 | Análisis de la comunicación DNS con Wireshark | [Ver captura](evidencias/wireshark.jpg) |
