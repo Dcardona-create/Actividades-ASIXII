@@ -158,7 +158,15 @@ sudo systemctl restart slapd
 sudo systemctl status slapd --no-pager
 ```
 
-**Evidencia prevista:** resultado final del asistente y estado `active (running)` de `slapd`.
+Consulta la base del directorio y su administrador en la configuración local:
+
+```bash
+sudo ldapsearch -Q -Y EXTERNAL -H ldapi:/// -LLL -b cn=config olcSuffix olcRootDN
+```
+
+**Evidencia 3 completada:** validación de la configuración y estado del servicio OpenLDAP. La salida obtenida confirma `config file testing succeeded`, la base `olcSuffix: dc=planetafp,dc=local`, el administrador `olcRootDN: cn=admin,dc=planetafp,dc=local` de la base MDB y el estado `active (running)` del servicio `slapd`.
+
+![Evidencia 3: Validación de la configuración y estado del servicio OpenLDAP](evidencias/03-configuracion-slapd.png)
 
 ---
 
@@ -285,7 +293,7 @@ ldapsearch -x -H ldap://localhost \
 |---:|---|---|
 | 1 | [IP estática configurada con Netplan](evidencias/01-ip-estatica-netplan.png) | Completada |
 | 2 | [Configuración de /etc/hosts y resolución local](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) | Completada |
-| 3 | Instalación y reconfiguración de `slapd` | Pendiente de captura real |
+| 3 | [Validación de la configuración y estado del servicio OpenLDAP](evidencias/03-configuracion-slapd.png) | Completada |
 | 4 | Estado del servicio y esquemas LDAP | Pendiente de captura real |
 | 5 | Inserción mediante `ldapadd` | Pendiente de captura real |
 | 6 | Consulta mediante `ldapsearch` | Pendiente de captura real |
