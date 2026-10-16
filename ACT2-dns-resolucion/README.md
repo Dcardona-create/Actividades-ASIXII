@@ -32,7 +32,7 @@ Los objetivos son identificar las entidades responsables de los dominios, consul
 
 Se realiza una comparativa de rendimiento entre distintos servidores de nombres para observar sus tiempos de respuesta.
 
-![Comparativa de servidores DNS](01-benchmark-nameservers.jpg)
+![Comparativa de servidores DNS](evidencias/01-benchmark-nameservers.jpg)
 
 ## 3. Investigación de dominios y autoridades DNS
 
@@ -40,7 +40,7 @@ Se realiza una comparativa de rendimiento entre distintos servidores de nombres 
 
 La consulta WHOIS permite consultar la información de registro asociada a un dominio, como la entidad responsable y otros datos administrativos disponibles.
 
-![Consulta WHOIS del dominio ifp.es](02-whois-ifp-es.jpg)
+![Consulta WHOIS del dominio ifp.es](evidencias/02-whois-ifp-es.jpg)
 
 ### 3.2 Información de dominios en IANA
 
@@ -48,15 +48,15 @@ IANA mantiene información de referencia sobre los dominios de nivel superior. A
 
 #### Dominio .es
 
-![Información IANA del dominio .es](03-iana-es.png)
+![Información IANA del dominio .es](evidencias/03-iana-es.png)
 
 #### Dominio .cat
 
-![Información IANA del dominio .cat](04-iana-cat.jpg)
+![Información IANA del dominio .cat](evidencias/04-iana-cat.jpg)
 
 #### Dominio .edu
 
-![Información IANA del dominio .edu](05-iana-edu.jpg)
+![Información IANA del dominio .edu](evidencias/05-iana-edu.jpg)
 
 ## 4. Configuración local del servicio DNS
 
@@ -64,7 +64,7 @@ IANA mantiene información de referencia sobre los dominios de nivel superior. A
 
 Se modifica la configuración del equipo Linux para utilizar el servidor DNS indicado en la actividad.
 
-![Cambio del servidor DNS en Linux](06-cambio-dns-linux.jpg)
+![Cambio del servidor DNS en Linux](evidencias/06-cambio-dns-linux.jpg)
 
 ### 4.2 Gestión de la caché DNS con NSCD
 
@@ -72,11 +72,11 @@ NSCD permite almacenar en caché información de servicios de nombres. Se compru
 
 #### Estado de la caché DNS
 
-![Caché DNS con NSCD](07-cache-dns-nscd.jpg)
+![Caché DNS con NSCD](evidencias/07-cache-dns-nscd.jpg)
 
 #### Vaciado de la caché DNS
 
-![Vaciado de la caché DNS](08-vaciado-cache-dns.jpg)
+![Vaciado de la caché DNS](evidencias/08-vaciado-cache-dns.jpg)
 
 ## 5. Resolución de nombres con dig
 
@@ -88,7 +88,7 @@ Se realiza una consulta de tipo `A` para obtener la dirección IPv4 asociada al 
 dig A aliexpress.com
 ```
 
-![Consulta de registro A](09-dig-a-aliexpress.jpg)
+![Consulta de registro A](evidencias/09-dig-a-aliexpress.jpg)
 
 ### 5.2 Consulta de registros MX y NS
 
@@ -99,7 +99,7 @@ dig +short MX aliexpress.com
 dig +short NS aliexpress.com
 ```
 
-![Consulta de registros MX y NS](10-dig-short-mx-ns-aliexpress.jpg)
+![Consulta de registros MX y NS](evidencias/10-dig-short-mx-ns-aliexpress.jpg)
 
 ### 5.3 Consulta del TTL
 
@@ -109,7 +109,7 @@ El TTL indica durante cuánto tiempo puede conservarse una respuesta DNS en cach
 dig aliexpress.com
 ```
 
-![Consulta del TTL](11-dig-ttl-aliexpress.jpg)
+![Consulta del TTL](evidencias/11-dig-ttl-aliexpress.jpg)
 
 ### 5.4 Trazado completo de resolución DNS
 
@@ -119,7 +119,7 @@ La opción `+trace` permite visualizar el recorrido de la resolución, desde los
 dig +trace aliexpress.com
 ```
 
-![Trazado completo de resolución DNS](12-dig-trace-aliexpress.jpg)
+![Trazado completo de resolución DNS](evidencias/12-dig-trace-aliexpress.jpg)
 
 ## 6. Análisis de tráfico DNS con Wireshark
 
@@ -127,25 +127,25 @@ dig +trace aliexpress.com
 
 Se captura una consulta DNS de tipo MX y la respuesta proporcionada por el servidor DNS.
 
-![Consulta y respuesta DNS](13-wireshark-query-response-mx.png)
+![Consulta y respuesta DNS](evidencias/13-wireshark-query-response-mx.png)
 
 ### 6.2 Puertos UDP utilizados
 
 El tráfico DNS se realiza normalmente mediante UDP. En la captura se identifica el puerto efímero de origen del cliente y el puerto 53 de destino del servidor DNS.
 
-![Puertos UDP utilizados](14-wireshark-udp-ports.png)
+![Puertos UDP utilizados](evidencias/14-wireshark-udp-ports.png)
 
 ### 6.3 ID de transacción y flags
 
 El ID de transacción permite asociar una respuesta con su consulta. Los flags indican características y estado del mensaje DNS, como si se trata de una respuesta o si la resolución fue correcta.
 
-![ID de transacción y flags DNS](15-wireshark-transaction-id-flags.png)
+![ID de transacción y flags DNS](evidencias/15-wireshark-transaction-id-flags.png)
 
 ### 6.4 Registros MX en la respuesta
 
 La sección de respuestas contiene los registros MX devueltos para el dominio consultado, que indican los servidores responsables de recibir correo electrónico.
 
-![Registros MX en la respuesta](16-wireshark-mx-answers.png)
+![Registros MX en la respuesta](evidencias/16-wireshark-mx-answers.png)
 
 ## 7. Conclusiones
 
