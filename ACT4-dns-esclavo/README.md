@@ -16,7 +16,7 @@
 - [Análisis de incidencias técnicas](#análisis-de-incidencias-técnicas)
 - [Operación y mantenimiento](#operación-y-mantenimiento)
 - [Conclusiones](#conclusiones)
-- [Evidencias](#evidencias)
+- [Capturas](#capturas)
 
 ---
 
@@ -34,19 +34,15 @@ En BIND9, el primario declara una zona con `type master` y autoriza transferenci
 
 ## Escenario y arquitectura
 
-El servidor primario ya configurado administra las zonas `deivid.test` y `6.168.192.in-addr.arpa`. El servidor secundario se conectará a la misma red de laboratorio y obtendrá las zonas desde el primario.
+El servidor primario administra las zonas `deivid.test` y `6.168.192.in-addr.arpa`. El secundario utiliza la interfaz `enp0s8`, con IP `192.168.6.101/24`, para comunicarse con la red de laboratorio. Estos datos se han confirmado mediante la salida de `ip -4 -br addr`.
 
 ```text
-                     Red de laboratorio: 192.168.6.0/24
+Red de laboratorio: 192.168.6.0/24
 
-┌────────────────────────────────┐       Transferencia de zona       ┌────────────────────────────────┐
-│ DNS primario                   │ ───────────────────────────────▶ │ DNS secundario                 │
-│ ns1.deivid.test.               │            AXFR / IXFR            │ ns2.deivid.test.               │
-│ IP: 192.168.6.100              │ ◀─────────────────────────────── │ IP: [pendiente de confirmar]   │
-│ BIND9: type master             │        consultas y notificación   │ BIND9: type slave              │
-└────────────────────────────────┘                                   └────────────────────────────────┘
-          │                                                                      │
-          └──────────── Zona directa e inversa autoritativas ───────────────────┘
+DNS primario                            DNS secundario
+ns1.deivid.test.                         ns2.deivid.test.
+192.168.6.100  ── transferencia ───────▶ 192.168.6.101
+BIND9: type master                      BIND9: type slave
 ```
 
 ## Plan de direccionamiento
@@ -56,16 +52,17 @@ El servidor primario ya configurado administra las zonas `deivid.test` y `6.168.
 | Red de laboratorio | `192.168.6.0/24` |
 | DNS primario | `ns1.deivid.test.` |
 | IP del primario | `192.168.6.100` |
-| DNS secundario | `ns2.deivid.test.` |
-| IP del secundario | Pendiente de confirmar |
+| DNS secundario previsto en el diseño | `ns2.deivid.test.` |
+| Hostname observado del secundario | `dns2` |
+| Interfaz de laboratorio del secundario | `enp0s8` |
+| IP del secundario | `192.168.6.101/24` |
+| Otra interfaz del secundario | `enp0s3`, con `10.0.2.15/24` |
 | Zona directa | `deivid.test` |
 | Zona inversa | `6.168.192.in-addr.arpa` |
 
-> La IP del secundario sigue pendiente de confirmar en esta documentación. Los marcadores `IP_DEL_SECUNDARIO` no deben ejecutarse literalmente ni sustituirse por una IP supuesta.
-
 ## 1. Preparación del servidor secundario
 
-En una segunda máquina virtual Debian se debe comprobar el hostname, la interfaz de red y la IP asignada en la red `192.168.6.0/24`.
+En la segunda máquina virtual Debian se comprueban el hostname, las interfaces y las rutas:
 
 ```bash
 hostnamectl
@@ -73,13 +70,19 @@ ip -4 addr show
 ip route
 ```
 
-### Evidencia 1 — Hostname del servidor DNS2
+### Hostname del servidor DNS2
 
-Captura disponible para documentar la identificación del servidor secundario. La dirección IP se mantendrá pendiente en el texto hasta contrastarla con la salida real del sistema.
+![Hostname del servidor DNS2](evidencias/01-hostname-dns2.png)
 
-![Evidencia 1: Hostname del servidor DNS2](evidencias/01-hostname-dns2.png)
+La comprobación posterior de las interfaces devuelve:
 
-Después se instala BIND9:
+```text
+lo       UNKNOWN  127.0.0.1/8
+enp0s3   UP       10.0.2.15/24
+enp0s8   UP       192.168.6.101/24
+```
+
+Para instalar y habilitar BIND9, si todavía no está instalado:
 
 ```bash
 sudo apt update
@@ -90,7 +93,7 @@ sudo systemctl status bind9
 
 ## 2. Configuración del servidor primario
 
-El servidor primario debe autorizar al secundario para transferir las zonas. La IP de ejemplo siguiente deberá sustituirse por la IP real de `ns2.deivid.test`.
+El primario debe autorizar a `192.168.6.101` para transferir las zonas. El siguiente bloque es la configuración de referencia, que debe contrastarse con el archivo real antes de realizar cambios.
 
 Archivo `/etc/bind/named.conf.local` del primario:
 
@@ -98,40 +101,40 @@ Archivo `/etc/bind/named.conf.local` del primario:
 zone "deivid.test" {
     type master;
     file "/etc/bind/zones/db.deivid.test";
-    allow-transfer { IP_DEL_SECUNDARIO; };
-    also-notify { IP_DEL_SECUNDARIO; };
+    allow-transfer { 192.168.6.101; };
+    also-notify { 192.168.6.101; };
 };
 
 zone "6.168.192.in-addr.arpa" {
     type master;
     file "/etc/bind/zones/db.6.168.192";
-    allow-transfer { IP_DEL_SECUNDARIO; };
-    also-notify { IP_DEL_SECUNDARIO; };
+    allow-transfer { 192.168.6.101; };
+    also-notify { 192.168.6.101; };
 };
 ```
 
-### Evidencia 3 — Autorización de transferencia en el maestro
+### Autorización de transferencia en el maestro
 
-Captura de la configuración de autorización de transferencias del servidor primario. Se conserva el número 3 para que coincida con el nombre del archivo existente.
+Pendiente de sustituir la captura `03-autorizacion-transferencia-maestro.png`: el archivo subido contiene HTML, no una imagen PNG. Se conserva el archivo sin mostrarlo como imagen para evitar una referencia visual rota. La captura correcta debe mostrar la configuración real de autorización de transferencias en el maestro.
 
-![Evidencia 3: Autorización de transferencia en el maestro](evidencias/03-autorizacion-transferencia-maestro.png)
-
-En la zona directa se añadirá el segundo servidor de nombres:
+En la zona directa, los registros previstos para los servidores son:
 
 ```dns
 @       IN  NS  ns1.deivid.test.
 @       IN  NS  ns2.deivid.test.
 ns1     IN  A   192.168.6.100
-ns2     IN  A   IP_DEL_SECUNDARIO
+ns2     IN  A   192.168.6.101
 ```
 
-En la zona inversa se añadirá el PTR correspondiente:
+En la zona inversa, el PTR previsto para el secundario es:
 
 ```dns
-ULTIMO_OCTETO_SECUNDARIO  IN  PTR ns2.deivid.test.
+101     IN  PTR ns2.deivid.test.
 ```
 
-Después de modificar las zonas, se debe incrementar el serial SOA, validar los archivos y recargar BIND9:
+Estos registros de `ns2` deben verificarse en los archivos reales; las consultas documentadas más adelante comprueban el registro de `ns1`, no el de `ns2`.
+
+Después de modificar una zona se debe incrementar su serial SOA, validar los archivos y recargar BIND9:
 
 ```bash
 sudo named-checkconf
@@ -142,14 +145,14 @@ sudo rndc reload
 
 ## 3. Configuración del servidor secundario
 
-El servidor secundario no crea manualmente los archivos de zona: los recibe desde el primario. Primero se prepara un directorio donde BIND9 pueda almacenar las transferencias:
+El secundario no crea manualmente los archivos de zona: los recibe desde el primario. Se prepara un directorio donde BIND9 pueda almacenar las transferencias:
 
 ```bash
 sudo mkdir -p /var/cache/bind/slaves
 sudo chown bind:bind /var/cache/bind/slaves
 ```
 
-Archivo `/etc/bind/named.conf.local` del secundario:
+Configuración de referencia en `/etc/bind/named.conf.local`:
 
 ```conf
 zone "deivid.test" {
@@ -165,81 +168,128 @@ zone "6.168.192.in-addr.arpa" {
 };
 ```
 
-### Evidencia 2 — Configuración del servidor esclavo
+### Configuración del servidor esclavo
 
-Captura de la configuración del servidor secundario. Se conserva el número 2 para que coincida con el nombre del archivo existente.
+![Configuración del servidor esclavo](evidencias/02-configuracion-esclavo.png)
 
-![Evidencia 2: Configuración del servidor esclavo](evidencias/02-configuracion-esclavo.png)
+En `/etc/bind/named.conf.options` de DNS2 se corrigió la dirección de escucha:
 
-A continuación se valida la sintaxis y se inicia o recarga BIND9:
+```conf
+listen-on { 127.0.0.1; 192.168.6.101; };
+```
+
+La dirección de `listen-on` corresponde al propio DNS2. En cambio, `masters { 192.168.6.100; };` sigue señalando al primario y no se cambia por la IP del esclavo.
+
+Se validó la configuración y se reinició el servicio:
 
 ```bash
-sudo named-checkconf
-sudo systemctl restart bind9
-sudo systemctl status bind9
+sudo named-checkconf /etc/bind/named.conf && sudo systemctl restart named
 ```
 
 ## 4. Transferencia y sincronización de zonas
 
-Tras iniciar BIND9 en el secundario, este solicita las zonas al primario. Los archivos transferidos deben aparecer en el directorio configurado:
+Tras iniciar BIND9 en el secundario, este solicita las zonas al primario. Para comprobar los archivos y registros del servicio:
 
 ```bash
 sudo ls -la /var/cache/bind/slaves/
 sudo journalctl -u bind9 -n 50 --no-pager
 ```
 
-La transferencia será correcta si aparecen los archivos de zona y los logs no muestran errores de permisos, conectividad o autorización.
+### Transferencia de zonas
 
-### Evidencia 4 — Transferencia de zonas
+![Transferencia de zonas](evidencias/04-transferencia-zonas.png)
 
-Captura disponible de la comprobación de transferencia de zonas. La validación final mediante consultas DNS se documentará por separado en la Evidencia 5.
-
-![Evidencia 4: Transferencia de zonas](evidencias/04-transferencia-zonas.png)
+Las consultas siguientes documentan por separado las respuestas del secundario y la comparación de los registros SOA.
 
 ## 5. Validación del servicio
 
-Se comprobará que ambos servidores responden de manera autoritativa para la zona directa e inversa.
+Las pruebas se ejecutaron desde la terminal de `dns2`.
+
+### Consulta directa al servidor esclavo
 
 ```bash
-# Consulta contra el primario
-dig @192.168.6.100 ns1.deivid.test A
-dig @192.168.6.100 -x 192.168.6.100
-
-# Consulta contra el secundario
-dig @IP_DEL_SECUNDARIO ns1.deivid.test A
-dig @IP_DEL_SECUNDARIO -x 192.168.6.100
+dig @192.168.6.101 ns1.deivid.test A
 ```
 
-La validación será correcta si ambas consultas devuelven los mismos registros `A` y `PTR`, el estado `NOERROR` y el flag `aa`.
+La respuesta devuelve `status: NOERROR`, el indicador autoritativo `aa` y un registro `A` con `ns1.deivid.test. → 192.168.6.100`. La línea `SERVER` identifica al secundario `192.168.6.101#53`.
 
-También se puede comparar el SOA en ambos servidores:
+![Consulta directa al servidor esclavo](evidencias/05-consulta-directa-esclavo.png)
+
+### Consulta inversa al servidor esclavo
 
 ```bash
-dig @192.168.6.100 deivid.test SOA
-dig @IP_DEL_SECUNDARIO deivid.test SOA
+dig @192.168.6.101 -x 192.168.6.100
 ```
 
-### Evidencia 5 — Consultas DNS contra primario y secundario
+La respuesta devuelve `status: NOERROR`, el indicador `aa` y un registro PTR que asocia `192.168.6.100` con `ns1.deivid.test.`. Responde el secundario `192.168.6.101`.
 
-Pendiente de captura y documentación de los resultados. No se marca como completada únicamente por disponer de una captura de transferencia de zonas.
+![Consulta inversa al servidor esclavo](evidencias/06-consulta-inversa-esclavo.png)
+
+### Comparación del SOA de la zona directa
+
+```bash
+dig @192.168.6.100 deivid.test SOA +short
+dig @192.168.6.101 deivid.test SOA +short
+```
+
+Ambos servidores devuelven:
+
+```text
+ns1.deivid.test. hostmaster.deivid.test. 1 86400 7200 3600000 86400
+```
+
+El serial anunciado para la zona directa es `1` en ambos servidores.
+
+![Comparación del SOA de la zona directa](evidencias/07-comparacion-soa-directa.png)
+
+### Comparación del SOA de la zona inversa
+
+```bash
+dig @192.168.6.100 6.168.192.in-addr.arpa SOA +short
+dig @192.168.6.101 6.168.192.in-addr.arpa SOA +short
+```
+
+Ambos servidores devuelven:
+
+```text
+ns1.deivid.test. hostmaster.deivid.test. 1 86400 7200 3600000 86400
+```
+
+El serial anunciado para la zona inversa también es `1` en ambos servidores.
+
+![Comparación del SOA de la zona inversa](evidencias/08-comparacion-soa-inversa.png)
+
+Estas comprobaciones confirman las respuestas autoritativas del esclavo para los registros consultados y la coincidencia de los SOA de ambas zonas. No constituyen una prueba de funcionamiento con el maestro detenido, que todavía no se ha realizado.
 
 ## Análisis de incidencias técnicas
 
-Los problemas más habituales son los siguientes:
+### Consulta rechazada por una dirección de escucha incorrecta
+
+Al consultar `192.168.6.101`, `dig` mostró `connection refused`. La salida de `ss` indicó que `named` estaba escuchando únicamente en `127.0.0.1:53`.
+
+El archivo de opciones de DNS2 contenía:
+
+```conf
+listen-on { 127.0.0.1; 192.168.6.100; };
+```
+
+La segunda dirección era la del maestro, no la del servidor local. Se guardó una copia de seguridad, se sustituyó por `192.168.6.101`, se validó la sintaxis y se reinició `named`. La consulta posterior respondió correctamente con `NOERROR` y `aa`.
+
+### Otros problemas a comprobar si falla una transferencia
 
 - El primario no autoriza la IP del secundario en `allow-transfer`.
 - El secundario no puede escribir en `/var/cache/bind/slaves/`.
-- El puerto TCP 53 está bloqueado: las transferencias de zona utilizan TCP, además del UDP habitual para consultas DNS.
+- El puerto TCP 53 está bloqueado.
 - El serial SOA no se ha incrementado después de modificar una zona.
 - El secundario no tiene conectividad con `192.168.6.100`.
 - La zona en el secundario tiene una IP errónea en `masters`.
 
-Para diagnosticar estos errores se utilizarán:
+Para diagnosticar estos casos:
 
 ```bash
 sudo named-checkconf
-sudo systemctl status bind9
-sudo journalctl -u bind9 -n 50 --no-pager
+sudo systemctl status named --no-pager -l
+sudo journalctl -u named -n 50 --no-pager
 sudo ss -lntup | grep ':53'
 ```
 
@@ -255,19 +305,24 @@ Después de modificar una zona en el primario:
 
 ## Conclusiones
 
-La configuración de un servidor DNS secundario permite mantener la disponibilidad de las zonas DNS si el servidor primario deja de estar disponible. La transferencia de zona y la comprobación del serial SOA garantizan que el secundario conserve una copia sincronizada de los registros autoritativos.
+El secundario `192.168.6.101` responde de forma autoritativa a las consultas directa e inversa realizadas para `ns1.deivid.test`. Los SOA consultados coinciden con los del primario para las zonas directa e inversa, con serial `1`. Se corrigió una dirección de escucha incorrecta en DNS2 que impedía recibir consultas en la interfaz de laboratorio.
 
-## Evidencias
+Queda pendiente sustituir la captura del maestro que se subió en formato HTML. No se ha realizado todavía una prueba con el primario detenido.
 
-Las capturas se guardan en la carpeta `evidencias/` y se muestran en su apartado correspondiente. La numeración sigue los nombres de las imágenes, aunque el apartado del primario aparezca antes que el del secundario en la guía.
+## Capturas
 
-| Nº | Evidencia | Captura |
+Todas las capturas se guardan en `evidencias/`. Los títulos describen su contenido sin el prefijo «Evidencia».
+
+| Nº | Descripción | Captura |
 |---:|---|---|
 | 1 | Hostname del servidor DNS2 | [Ver captura](evidencias/01-hostname-dns2.png) |
 | 2 | Configuración del servidor esclavo | [Ver captura](evidencias/02-configuracion-esclavo.png) |
-| 3 | Autorización de transferencia en el maestro | [Ver captura](evidencias/03-autorizacion-transferencia-maestro.png) |
+| 3 | Autorización de transferencia en el maestro | Pendiente de sustituir: el archivo contiene HTML |
 | 4 | Transferencia de zonas | [Ver captura](evidencias/04-transferencia-zonas.png) |
-| 5 | Consultas DNS contra primario y secundario | Pendiente de captura |
+| 5 | Consulta directa al esclavo | [Ver captura](evidencias/05-consulta-directa-esclavo.png) |
+| 6 | Consulta inversa al esclavo | [Ver captura](evidencias/06-consulta-inversa-esclavo.png) |
+| 7 | Comparación del SOA de la zona directa | [Ver captura](evidencias/07-comparacion-soa-directa.png) |
+| 8 | Comparación del SOA de la zona inversa | [Ver captura](evidencias/08-comparacion-soa-inversa.png) |
 
 ## Estructura del proyecto
 
@@ -278,7 +333,11 @@ ACT4-dns-esclavo/
     ├── 01-hostname-dns2.png
     ├── 02-configuracion-esclavo.png
     ├── 03-autorizacion-transferencia-maestro.png
-    └── 04-transferencia-zonas.png
+    ├── 04-transferencia-zonas.png
+    ├── 05-consulta-directa-esclavo.png
+    ├── 06-consulta-inversa-esclavo.png
+    ├── 07-comparacion-soa-directa.png
+    └── 08-comparacion-soa-inversa.png
 ```
 
-Las nuevas capturas deben subirse a `ACT4-dns-esclavo/evidencias/`.
+El archivo 03 se conserva sin cambios hasta disponer de una captura PNG real para sustituirlo. Esta actualización modifica únicamente el README; no borra ni altera las imágenes.
