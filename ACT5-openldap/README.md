@@ -289,14 +289,14 @@ ldapsearch -x -H ldap://localhost \
 
 ## Evidencias
 
-| Nº | Evidencia | Estado |
+| Nº | Evidencia | Captura |
 |---:|---|---|
-| 1 | [IP estática configurada con Netplan](evidencias/01-ip-estatica-netplan.png) | Completada |
-| 2 | [Configuración de /etc/hosts y resolución local](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) | Completada |
-| 3 | [Validación de la configuración y estado del servicio OpenLDAP](evidencias/03-configuracion-slapd.png) | Completada |
-| 4 | Estado del servicio y esquemas LDAP | Pendiente de captura real |
-| 5 | Inserción mediante `ldapadd` | Pendiente de captura real |
-| 6 | Consulta mediante `ldapsearch` | Pendiente de captura real |
+| 1 | IP estática configurada con Netplan | [Ver captura](evidencias/01-ip-estatica-netplan.png) |
+| 2 | Configuración de /etc/hosts y resolución local | [Ver captura](evidencias/Evidencia_2_Resolucion_nombre_LDAP.jpg) |
+| 3 | Validación de la configuración y estado del servicio OpenLDAP | [Ver captura](evidencias/03-configuracion-slapd.png) |
+| 4 | Estado del servicio y esquemas LDAP | |
+| 5 | Inserción mediante `ldapadd` | |
+| 6 | Consulta mediante `ldapsearch` | |
 
 
 
