@@ -4,19 +4,6 @@ Boceto de la actividad. Sin respuestas desarrolladas, pruebas ejecutadas ni resu
 
 [Volver al índice de actividades](../README.md)
 
-## Datos de la actividad
-
-| Campo | Información |
-|---|---|
-| Módulo | M0378 - Seguridad |
-| Ciclo | ASIX |
-| Alumno | Deivid Cardona |
-| Dedicación prevista en el enunciado | 2 horas |
-| Modalidad | Práctica individual e informe escrito en pareja |
-| Pareja del informe | Por confirmar |
-| Entrega admitida | GitBook, GitHub o Notion |
-| Enunciado | M10378T1A3-rsync-tar.docx |
-
 ## Objetivo
 
 Realizar copias de seguridad en Linux con rsync y tar.gz, restaurar su contenido y automatizar las copias remotas mediante scripts y crontab.
