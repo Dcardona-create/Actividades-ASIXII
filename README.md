@@ -12,6 +12,7 @@ Repositorio de prácticas del ciclo formativo ASIXII.
 | ACT4 | Servicios de red | Configuración de un servidor DNS secundario con BIND9 | [Ver práctica](./ACT4-dns-esclavo/) |
 | ACT5 | Servicios de red | Instalación y configuración de OpenLDAP | [Ver práctica](./ACT5-openldap/) |
 | ACT6 |RSYNC - TAR | Copias de seguridad locales y remotas, restauración y automatización | [Ver boceto](./rsync-tar/README.md) |
+| ACT7 | Ciber Hacking | Retos de mínimo privilegio en Linux | [Ver práctica](https://github.com/deivid-cardona/Ciber-Hacking/tree/main/ACT1-retos-minimo-privilegio-linux) |
 
 Cada actividad incluye su código, capturas y documentación en su propia carpeta.
 
